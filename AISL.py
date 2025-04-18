@@ -2,18 +2,18 @@ import streamlit as st
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+import os
 
-# ✅ Safely access the OpenAI API key from secrets.toml
-openai_key = st.secrets["OPENAI_API_KEY"]
+# 🔐 Directly set API key — this bypasses secrets.toml issues
+os.environ["OPENAI_API_KEY"] = "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"
 
-# ✅ Initialize GPT-4 LLM
+# ✅ Initialize model
 llm = ChatOpenAI(
     model_name="gpt-4",
-    temperature=0.7,
-    openai_api_key=openai_key
+    temperature=0.7
 )
 
-# ✅ Define the prompt template
+# ✅ Prompt
 template = """
 You are a personalized educational assistant for an after-school program.
 
@@ -34,7 +34,6 @@ Student Profile:
 Ensure the content is age-appropriate, encouraging, and creatively written.
 """
 
-# ✅ Prepare the prompt and chain
 prompt = PromptTemplate(
     input_variables=["name", "age", "grade", "learning_style", "interests", "difficulty"],
     template=template
@@ -42,7 +41,7 @@ prompt = PromptTemplate(
 
 chain = LLMChain(llm=llm, prompt=prompt)
 
-# ✅ Streamlit UI setup
+# ✅ Streamlit UI
 st.set_page_config(page_title="Youth Ed Assistant", page_icon="📚")
 st.title("📚 Youth Development: Personalized Learning Assistant")
 
