@@ -1,21 +1,17 @@
-import os
 import streamlit as st
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
+# ✅ Safely access the OpenAI API key from secrets.toml
+openai_key = st.secrets["OPENAI_API_KEY"]
 
-# ✅ Set API key from Streamlit Cloud secrets
-# os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-
-
+# ✅ Initialize GPT-4 LLM
 llm = ChatOpenAI(
     model_name="gpt-4",
     temperature=0.7,
-    openai_api_key=st.secrets["OPENAI_API_KEY"]
+    openai_api_key=openai_key
 )
-
-
 
 # ✅ Define the prompt template
 template = """
@@ -38,6 +34,7 @@ Student Profile:
 Ensure the content is age-appropriate, encouraging, and creatively written.
 """
 
+# ✅ Prepare the prompt and chain
 prompt = PromptTemplate(
     input_variables=["name", "age", "grade", "learning_style", "interests", "difficulty"],
     template=template
@@ -45,7 +42,7 @@ prompt = PromptTemplate(
 
 chain = LLMChain(llm=llm, prompt=prompt)
 
-# ✅ Streamlit UI
+# ✅ Streamlit UI setup
 st.set_page_config(page_title="Youth Ed Assistant", page_icon="📚")
 st.title("📚 Youth Development: Personalized Learning Assistant")
 
@@ -54,13 +51,13 @@ with st.form("student_form"):
     age = st.text_input("🎂 Age")
     grade = st.text_input("🏫 Grade Level")
     learning_style = st.selectbox("🧠 Learning Style", ["Visual", "Auditory", "Kinesthetic", "Reading/Writing"])
-    interests = st.text_area("🎨 Interests (comma-separated)", placeholder="e.g. space, animals, puzzles")
+    interests = st.text_area("🎨 Interests", placeholder="e.g. space, animals, puzzles")
     difficulty = st.text_area("⚠️ Academic Challenges", placeholder="e.g. reading comprehension")
 
     submitted = st.form_submit_button("Generate Learning Plan")
 
 if submitted:
-    with st.spinner("Generating personalized content..."):
+    with st.spinner("🧠 Thinking..."):
         try:
             result = chain.run({
                 "name": name,
@@ -71,10 +68,10 @@ if submitted:
                 "difficulty": difficulty
             })
 
-            st.success("✅ Plan Generated!")
+            st.success("✅ Personalized Plan Generated!")
             st.markdown("### 📝 Personalized Learning Plan")
             st.write(result)
 
         except Exception as e:
-            st.error("🚨 Something went wrong while generating the plan.")
+            st.error("🚨 An error occurred while generating the content.")
             st.exception(e)
